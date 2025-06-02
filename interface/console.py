@@ -4,6 +4,8 @@ from ai.minimax import minimax
 # from ai.mcts import mcts
 import sys
 
+
+
 def afficher_grille_et_resultat(jeu):
     jeu.afficher_grille()
     if jeu.est_victoire():
