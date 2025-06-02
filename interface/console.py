@@ -1,7 +1,7 @@
 from game.puissance4 import Puissance4
 from ai.minimax import minimax
-# from ai.alphabeta import alpha_beta
-# from ai.mcts import mcts
+from ai.alphabeta import alpha_beta
+from ai.mcts import mcts
 import sys
 
 def afficher_grille_et_resultat(jeu):
@@ -90,11 +90,41 @@ def jouer_ia_vs_ia():
 
         jeu.changer_joueur()
 
+def jouer_joueur_vs_ia():
+    jeu = Puissance4()
+    while True:
+        jeu.afficher_grille()
+        if jeu.joueur_actuel == 'X':
+            try:
+                col = int(input("Votre coup (0-6) : "))
+            except ValueError:
+                print("Nombre invalide.")
+                continue
+        else:  # IA joue avec O
+            print("IA réfléchit...")
+            col = alpha_beta(jeu, max_profondeur=8)  # profondeur ajustable
+
+        if not jeu.jouer(col):
+            print("Coup invalide.")
+            continue
+
+        if jeu.est_victoire():
+            jeu.afficher_grille()
+            print(f"Le joueur {jeu.joueur_actuel} a gagné !")
+            break
+
+        if jeu.est_pleine():
+            jeu.afficher_grille()
+            print("Match nul.")
+            break
+
+        jeu.changer_joueur()
+
 def afficher_menu():
     print("\n--- Menu Puissance 4 ---")
     print("1. Joueur contre Joueur")
-    print("2. Joueur contre IA")
-    print("3. IA contre IA")
+    print("2. Joueur contre IA (à venir)")
+    print("3. IA contre IA (à venir)")
     print("0. Quitter")
 
 def afficher_choix_ia():
@@ -113,15 +143,7 @@ def jouer_partie_console():
             jouer_joueur_vs_joueur()
 
         elif choix == "2":
-            afficher_choix_ia()
-            choix_ia = input("Choisissez une IA : ")
-            if choix_ia == "0":
-                continue
-            elif choix_ia not in ["1", "2", "3"]:
-                print("Choix invalide.")
-                continue
-            jouer_joueur_vs_ia(choix_ia)
-
+            print("Mode Joueur contre IA en cours de développement.")
         elif choix == "3":
             jouer_ia_vs_ia()
 
