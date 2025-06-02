@@ -48,9 +48,9 @@ def jouer_joueur_vs_ia(choix_ia):
         else:  # IA joue avec O
             print("IA réfléchit...")
             if choix_ia == "1":
-                col = minimax(jeu, max_profondeur=6)
+                col = minimax(jeu, max_profondeur=4)
             elif choix_ia == "2":
-                col = alpha_beta(jeu, max_profondeur=6)
+                col = alpha_beta(jeu, max_profondeur=4)
             elif choix_ia == "3":
                 print("MCTS n'est pas encore implémenté.")
                 col = 0 # mcts(jeu, simulations=1000)
@@ -70,7 +70,7 @@ def jouer_joueur_vs_ia(choix_ia):
 
 def jouer_ia_vs_ia(choix_ia1, choix_ia2):
     jeu = Puissance4()
-    profondeur = 6  # profondeur pour les IA
+    profondeur = 8 # profondeur pour les IA
 
     print(f"\n--- IA vs IA ---")
     print(f"IA 1 (X) = ", end="")
