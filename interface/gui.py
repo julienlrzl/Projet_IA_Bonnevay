@@ -24,7 +24,7 @@ class Puissance4GUI:
 
         tk.Label(popup, text="Mode de jeu :", font=("Arial", 14)).pack(pady=10)
         tk.Button(popup, text="Joueur vs Joueur", width=25, command=lambda: self.set_mode(popup, 'PVP')).pack(pady=5)
-        tk.Button(popup, text="Joueur vs IA", width=25, state='disabled').pack(pady=5)
+        tk.Button(popup, text="IA vs IA", width=25, command=lambda: self.set_mode(popup, 'IAvsIA')).pack(pady=5)
         tk.Button(popup, text="IA vs IA", width=25, state='disabled').pack(pady=5)
         tk.Button(popup, text="Quitter", width=25, command=popup.quit).pack(pady=15)
 

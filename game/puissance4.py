@@ -53,6 +53,5 @@ class Puissance4:
 
         return False
     
-
     def get_valid_moves(self):
         return [c for c in range(self.cols) if self.grille[0][c] == '.']
