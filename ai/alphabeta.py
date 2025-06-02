@@ -26,7 +26,10 @@ def joueur_max(n, p, alpha, beta):
     u = float('-inf')
     a = None
 
-    for f, action_f in generer_fils(n): 
+    for f, action_f in generer_fils(n):
+        if f.est_victoire():
+            return float('inf'), action_f
+        
         eval, _ = joueur_min(f, p - 1, alpha, beta)
         if eval > u:
             u = eval
@@ -46,6 +49,9 @@ def joueur_min(n, p, alpha, beta):
     a = None
 
     for f, action_f in generer_fils(n):
+        if f.est_victoire():
+            return float('-inf'), action_f
+        
         eval, _ = joueur_max(f, p - 1, alpha, beta)
         if eval < u:
             u = eval
