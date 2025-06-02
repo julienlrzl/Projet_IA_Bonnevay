@@ -25,8 +25,8 @@ def minimax(racine, max_profondeur):
 def joueur_max(n, p):
     if est_feuille(n) or p == 0:
         if n.est_victoire():
-            return -100000, None  # car l'adversaire vient de jouer
-        return evaluation(n), None
+            return -100000, get_default_action(n)  # car l'adversaire vient de jouer
+        return evaluation(n), get_default_action(n)
 
     u = float('-inf')
     a = None
@@ -43,8 +43,8 @@ def joueur_max(n, p):
 def joueur_min(n, p):
     if est_feuille(n) or p == 0:
         if n.est_victoire():
-            return 100000, None  # car l'adversaire vient de jouer
-        return evaluation(n), None
+            return 100000, get_default_action(n)  # car l'adversaire vient de jouer
+        return evaluation(n), get_default_action(n)
 
     u = float('inf')
     a = None
@@ -56,3 +56,8 @@ def joueur_min(n, p):
             a = a_f
 
     return u, a
+
+def get_default_action(n):
+    """Renvoie un coup valide arbitraire pour éviter de retourner None."""
+    valid_moves = n.get_valid_moves()
+    return valid_moves[0] if valid_moves else 0

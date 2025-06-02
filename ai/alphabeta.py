@@ -21,10 +21,10 @@ def alpha_beta(racine, max_profondeur):
 
 def joueur_max(n, p, alpha, beta):
     if est_feuille(n) or p == 0:
-        return evaluation(n), None
+        return evaluation(n), get_default_action(n)
 
     u = float('-inf')
-    a = None
+    a = get_default_action(n)  
 
     for f, action_f in generer_fils(n):
         if f.est_victoire():
@@ -36,17 +36,18 @@ def joueur_max(n, p, alpha, beta):
             a = action_f
         alpha = max(alpha, u)
         if alpha >= beta:
-            return u, a
+            return u, a  
 
     return u, a
 
 
+
 def joueur_min(n, p, alpha, beta):
     if est_feuille(n) or p == 0:
-        return evaluation(n), None
+        return evaluation(n), get_default_action(n)
 
     u = float('inf')
-    a = None
+    a = get_default_action(n) 
 
     for f, action_f in generer_fils(n):
         if f.est_victoire():
@@ -58,6 +59,12 @@ def joueur_min(n, p, alpha, beta):
             a = action_f
         beta = min(beta, u)
         if beta <= alpha:
-            return u, a
+            return u, a  
 
     return u, a
+
+
+def get_default_action(n):
+    """Renvoie un coup valide arbitraire pour éviter de retourner None."""
+    valid_moves = n.get_valid_moves()
+    return valid_moves[0] if valid_moves else 0
