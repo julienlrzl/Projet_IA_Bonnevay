@@ -70,7 +70,7 @@ def jouer_joueur_vs_ia(choix_ia):
 
 def jouer_ia_vs_ia(choix_ia1, choix_ia2):
     jeu = Puissance4()
-    profondeur = 8 # profondeur pour les IA
+    profondeur = 4 # profondeur pour les IA
 
     print(f"\n--- IA vs IA ---")
     print(f"IA 1 (X) = ", end="")

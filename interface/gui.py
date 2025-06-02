@@ -14,6 +14,8 @@ class Puissance4GUI:
         self.window = None
         self.canvas = None
         self.label_infos = None
+        self.profondeur_ia1 = 4
+        self.profondeur_ia2 = 4
 
     def centrer_fenetre(self, fenetre, largeur, hauteur):
         fenetre.update_idletasks()
@@ -35,6 +37,24 @@ class Puissance4GUI:
         tk.Button(popup, text="Quitter", width=25, command=popup.quit).pack(pady=15)
 
         popup.mainloop()
+
+    def choisir_profondeur(self, titre):
+        popup = tk.Tk()
+        popup.title(titre)
+        self.centrer_fenetre(popup, 300, 200)
+
+        val = tk.IntVar()
+        val.set(4)  # par défaut
+
+        tk.Label(popup, text="Choisissez la profondeur :", font=("Arial", 14)).pack(pady=10)
+        tk.Scale(popup, from_=1, to=8, orient='horizontal', variable=val).pack(pady=10)
+
+        tk.Button(popup, text="Valider", command=popup.quit).pack(pady=10)
+
+        popup.mainloop()
+        popup.destroy()
+
+        return val.get()
 
     def set_mode(self, popup, mode):
         self.mode = mode
@@ -77,12 +97,19 @@ class Puissance4GUI:
             else:
                 self.jeu.changer_joueur()
 
-        # Si on est en Joueur vs IA → faire jouer l'IA automatiquement
         if self.mode == 'PvIA' and self.jeu.joueur_actuel == 'O':
             self.window.after(500, self.tour_ia)
 
     def tour_ia(self):
-        col = alpha_beta(self.jeu, max_profondeur=4)
+        if self.ia2 == "1":
+            col = minimax(self.jeu, max_profondeur=self.profondeur_ia2)
+        elif self.ia2 == "2":
+            col = alpha_beta(self.jeu, max_profondeur=self.profondeur_ia2)
+        elif self.ia2 == "3":
+            print("MCTS non implémenté")
+            col = 0
+        else:
+            col = 0
 
         if self.jeu.jouer(col):
             self.dessiner_grille()
@@ -102,13 +129,15 @@ class Puissance4GUI:
     def tour_ia_vs_ia(self):
         if self.jeu.joueur_actuel == 'X':
             choix_ia = self.ia1
+            profondeur = self.profondeur_ia1
         else:
             choix_ia = self.ia2
+            profondeur = self.profondeur_ia2
 
         if choix_ia == "1":
-            col = minimax(self.jeu, max_profondeur=4)
+            col = minimax(self.jeu, max_profondeur=profondeur)
         elif choix_ia == "2":
-            col = alpha_beta(self.jeu, max_profondeur=4)
+            col = alpha_beta(self.jeu, max_profondeur=profondeur)
         elif choix_ia == "3":
             print("MCTS non implémenté")
             col = 0
@@ -155,12 +184,13 @@ class Puissance4GUI:
         infos = ""
         if self.mode == 'PVP':
             infos = "🔴 Joueur X : Humain      🟡 Joueur O : Humain"
-        if self.mode == 'PvIA':
-            self.ia2 = self.choisir_ia("Choix de l'IA (joueur O)")
+        elif self.mode == 'PvIA':
+            ia2_name = "Minimax" if self.ia2 == "1" else "AlphaBeta" if self.ia2 == "2" else "MCTS"
+            infos = f"🔴 Joueur X : Humain      🟡 Joueur O : IA ({ia2_name}, prof {self.profondeur_ia2})"
         elif self.mode == 'IAvsIA':
             ia1_name = "Minimax" if self.ia1 == "1" else "AlphaBeta" if self.ia1 == "2" else "MCTS"
             ia2_name = "Minimax" if self.ia2 == "1" else "AlphaBeta" if self.ia2 == "2" else "MCTS"
-            infos = f"Joueur Rouge : IA ({ia1_name})       Joueur Jaune : IA ({ia2_name})"
+            infos = f"🔴 Joueur X : IA ({ia1_name}, prof {self.profondeur_ia1})      🟡 Joueur O : IA ({ia2_name}, prof {self.profondeur_ia2})"
 
         self.label_infos.config(text=infos)
 
@@ -171,13 +201,20 @@ class Puissance4GUI:
         if self.mode is None:
             return  # si on a cliqué sur "Quitter"
 
-        if self.mode == 'IAvsIA':
+        if self.mode == 'PvIA':
+            self.ia2 = self.choisir_ia("Choix de l'IA (joueur O)")
+            self.profondeur_ia2 = self.choisir_profondeur("Profondeur IA (joueur O)")
+
+        elif self.mode == 'IAvsIA':
             self.ia1 = self.choisir_ia("Choix IA 1 (joueur X)")
+            self.profondeur_ia1 = self.choisir_profondeur("Profondeur IA 1 (joueur X)")
+
             self.ia2 = self.choisir_ia("Choix IA 2 (joueur O)")
+            self.profondeur_ia2 = self.choisir_profondeur("Profondeur IA 2 (joueur O)")
 
         self.window = tk.Tk()
         self.window.title("Puissance 4")
-        self.centrer_fenetre(self.window, 700, 700)  # + hauteur pour le label
+        self.centrer_fenetre(self.window, 700, 700)
 
         self.label_infos = tk.Label(self.window, text="", font=("Arial", 14))
         self.label_infos.pack(pady=5)
