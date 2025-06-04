@@ -27,31 +27,39 @@ class Puissance4:
     def est_pleine(self):
         return all(self.grille[0][col] != '.' for col in range(self.cols))
 
-    def est_victoire(self):
+    def est_victoire(self, joueur=None):
         def check4(a, b, c, d):
-            return a == b == c == d != '.'
+            return a == b == c == d == joueur
 
+        if joueur is None:
+            joueur = self.joueur_actuel
+
+        # Horizontale
         for r in range(self.rows):
             for c in range(self.cols - 3):
                 if check4(self.grille[r][c], self.grille[r][c+1], self.grille[r][c+2], self.grille[r][c+3]):
                     return True
 
+        # Verticale
         for r in range(self.rows - 3):
             for c in range(self.cols):
                 if check4(self.grille[r][c], self.grille[r+1][c], self.grille[r+2][c], self.grille[r+3][c]):
                     return True
 
+        # Diagonale descendante
         for r in range(self.rows - 3):
             for c in range(self.cols - 3):
                 if check4(self.grille[r][c], self.grille[r+1][c+1], self.grille[r+2][c+2], self.grille[r+3][c+3]):
                     return True
 
+        # Diagonale montante
         for r in range(3, self.rows):
             for c in range(self.cols - 3):
                 if check4(self.grille[r][c], self.grille[r-1][c+1], self.grille[r-2][c+2], self.grille[r-3][c+3]):
                     return True
 
         return False
+
     
     def get_valid_moves(self):
         return [c for c in range(self.cols) if self.grille[0][c] == '.']

@@ -16,6 +16,7 @@ def generer_fils(etat):
 
 def alpha_beta(racine, max_profondeur):
     eval, action = joueur_max(racine, max_profondeur, float('-inf'), float('inf'))
+    print(f"[AlphaBeta depth {max_profondeur}] Best move: {action}, Eval: {eval}")
     return action
 
 
@@ -24,21 +25,23 @@ def joueur_max(n, p, alpha, beta):
         return evaluation(n), get_default_action(n)
 
     u = float('-inf')
-    a = get_default_action(n)  
+    a = get_default_action(n)
 
     for f, action_f in generer_fils(n):
-        if f.est_victoire():
+        joueur_precedent = 'X' if n.joueur_actuel == 'O' else 'O'
+        if f.est_victoire(joueur_precedent):
             return float('inf'), action_f
-        
+
         eval, _ = joueur_min(f, p - 1, alpha, beta)
         if eval > u:
             u = eval
             a = action_f
         alpha = max(alpha, u)
         if alpha >= beta:
-            return u, a  
+            break
 
     return u, a
+
 
 
 
@@ -47,21 +50,23 @@ def joueur_min(n, p, alpha, beta):
         return evaluation(n), get_default_action(n)
 
     u = float('inf')
-    a = get_default_action(n) 
+    a = get_default_action(n)
 
     for f, action_f in generer_fils(n):
-        if f.est_victoire():
-            return float('-inf'), action_f
-        
+        joueur_precedent = 'X' if n.joueur_actuel == 'O' else 'O'
+        if f.est_victoire(joueur_precedent):
+            return float('inf'), action_f
+
         eval, _ = joueur_max(f, p - 1, alpha, beta)
         if eval < u:
             u = eval
             a = action_f
         beta = min(beta, u)
         if beta <= alpha:
-            return u, a  
+            break
 
     return u, a
+
 
 
 def get_default_action(n):
