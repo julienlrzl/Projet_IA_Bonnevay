@@ -1,5 +1,3 @@
-# minimax.py
-
 from copy import deepcopy
 from ai.evaluation import evaluation
 
@@ -28,8 +26,8 @@ def minimax(racine, max_profondeur):
 
 def joueur_max(n, p):
     if est_feuille(n) or p == 0:
-        adversaire_ = 'O' if n.joueur_actuel == 'X' else 'X'
-        if n.est_victoire(adversaire_):
+        adversaire = 'O' if n.joueur_actuel == 'X' else 'X'
+        if n.estvictoire(adversaire):
             return -100000, get_default_action(n)
         return evaluation(n, joueur_ref), get_default_action(n)  # <-- corrigé
 
@@ -37,7 +35,7 @@ def joueur_max(n, p):
     a = None
 
     for f, a_f in generer_fils(n):
-        eval, _ = joueur_min(f, p - 1)
+        eval,  = joueur_min(f, p - 1)
         if eval > u:
             u = eval
             a = a_f
@@ -46,8 +44,8 @@ def joueur_max(n, p):
 
 def joueur_min(n, p):
     if est_feuille(n) or p == 0:
-        adversaire_ = 'O' if n.joueur_actuel == 'X' else 'X'
-        if n.est_victoire(adversaire_):
+        adversaire = 'O' if n.joueur_actuel == 'X' else 'X'
+        if n.estvictoire(adversaire):
             return 100000, get_default_action(n)
         return evaluation(n, joueur_ref), get_default_action(n) 
 
@@ -55,7 +53,7 @@ def joueur_min(n, p):
     a = None
 
     for f, a_f in generer_fils(n):
-        eval, _ = joueur_max(f, p - 1)
+        eval,  = joueur_max(f, p - 1)
         if eval < u:
             u = eval
             a = a_f
