@@ -3,7 +3,7 @@ from tkinter import messagebox
 from game.puissance4 import Puissance4
 from ai.minimax import minimax
 from ai.alphabeta import alpha_beta
-# from ai.mcts import mcts  # si tu veux le rajouter
+from ai.mcts import mcts
 
 class Puissance4GUI:
     def __init__(self):
@@ -16,6 +16,8 @@ class Puissance4GUI:
         self.label_infos = None
         self.profondeur_ia1 = 4
         self.profondeur_ia2 = 4
+        self.budget_ia1 = 1000
+        self.budget_ia2 = 1000
 
     def centrer_fenetre(self, fenetre, largeur, hauteur):
         fenetre.update_idletasks()
@@ -38,22 +40,25 @@ class Puissance4GUI:
 
         popup.mainloop()
 
-    def choisir_profondeur(self, titre):
+    def choisir_force_ia(self, ia_type, titre):
         popup = tk.Tk()
         popup.title(titre)
-        self.centrer_fenetre(popup, 300, 200)
+        self.centrer_fenetre(popup, 340, 200)
 
-        val = tk.IntVar()
-        val.set(4)  # par défaut
-
-        tk.Label(popup, text="Choisissez la profondeur :", font=("Arial", 14)).pack(pady=10)
-        tk.Scale(popup, from_=1, to=8, orient='horizontal', variable=val).pack(pady=10)
+        if ia_type == "3":  # MCTS
+            val = tk.IntVar()
+            val.set(1000)
+            tk.Label(popup, text="Choisissez le budget de simulations :", font=("Arial", 14)).pack(pady=10)
+            tk.Scale(popup, from_=100, to=5000, resolution=100, orient='horizontal', variable=val).pack(pady=10)
+        else:
+            val = tk.IntVar()
+            val.set(4)
+            tk.Label(popup, text="Choisissez la profondeur :", font=("Arial", 14)).pack(pady=10)
+            tk.Scale(popup, from_=1, to=8, orient='horizontal', variable=val).pack(pady=10)
 
         tk.Button(popup, text="Valider", command=popup.quit).pack(pady=10)
-
         popup.mainloop()
         popup.destroy()
-
         return val.get()
 
     def set_mode(self, popup, mode):
@@ -106,8 +111,7 @@ class Puissance4GUI:
         elif self.ia2 == "2":
             col = alpha_beta(self.jeu, max_profondeur=self.profondeur_ia2)
         elif self.ia2 == "3":
-            print("MCTS non implémenté")
-            col = 0
+            col = mcts(self.jeu, budget=self.budget_ia2)
         else:
             col = 0
 
@@ -139,8 +143,8 @@ class Puissance4GUI:
         elif choix_ia == "2":
             col = alpha_beta(self.jeu, max_profondeur=profondeur)
         elif choix_ia == "3":
-            print("MCTS non implémenté")
-            col = 0
+            budget = self.budget_ia1 if self.jeu.joueur_actuel == 'X' else self.budget_ia2
+            col = mcts(self.jeu, budget=budget)
         else:
             col = 0
 
@@ -171,7 +175,7 @@ class Puissance4GUI:
         tk.Label(popup, text="Choisissez l'IA :", font=("Arial", 14)).pack(pady=10)
         tk.Radiobutton(popup, text="Minimax", variable=choix, value="1").pack(anchor='w', padx=20)
         tk.Radiobutton(popup, text="Alpha-Beta", variable=choix, value="2").pack(anchor='w', padx=20)
-        tk.Radiobutton(popup, text="MCTS (non implémenté)", variable=choix, value="3").pack(anchor='w', padx=20)
+        tk.Radiobutton(popup, text="MCTS", variable=choix, value="3").pack(anchor='w', padx=20)
 
         tk.Button(popup, text="Valider", command=popup.quit).pack(pady=15)
 
@@ -182,16 +186,19 @@ class Puissance4GUI:
 
     def afficher_infos_joueurs(self):
         infos = ""
+        def ia_label(nom, type_ia, profondeur, budget):
+            if type_ia == "3":
+                return f"{nom} : IA (MCTS, budget {budget})"
+            else:
+                txt = "Minimax" if type_ia == "1" else "AlphaBeta"
+                return f"{nom} : IA ({txt}, prof {profondeur})"
+
         if self.mode == 'PVP':
             infos = "🔴 Joueur X : Humain      🟡 Joueur O : Humain"
         elif self.mode == 'PvIA':
-            ia2_name = "Minimax" if self.ia2 == "1" else "AlphaBeta" if self.ia2 == "2" else "MCTS"
-            infos = f"🔴 Joueur X : Humain      🟡 Joueur O : IA ({ia2_name}, prof {self.profondeur_ia2})"
+            infos = f"🔴 Joueur X : Humain      🟡 {ia_label('Joueur O', self.ia2, self.profondeur_ia2, self.budget_ia2)}"
         elif self.mode == 'IAvsIA':
-            ia1_name = "Minimax" if self.ia1 == "1" else "AlphaBeta" if self.ia1 == "2" else "MCTS"
-            ia2_name = "Minimax" if self.ia2 == "1" else "AlphaBeta" if self.ia2 == "2" else "MCTS"
-            infos = f"🔴 Joueur X : IA ({ia1_name}, prof {self.profondeur_ia1})      🟡 Joueur O : IA ({ia2_name}, prof {self.profondeur_ia2})"
-
+            infos = f"🔴 {ia_label('Joueur X', self.ia1, self.profondeur_ia1, self.budget_ia1)}      🟡 {ia_label('Joueur O', self.ia2, self.profondeur_ia2, self.budget_ia2)}"
         self.label_infos.config(text=infos)
 
     def lancer(self):
@@ -203,14 +210,23 @@ class Puissance4GUI:
 
         if self.mode == 'PvIA':
             self.ia2 = self.choisir_ia("Choix de l'IA (joueur O)")
-            self.profondeur_ia2 = self.choisir_profondeur("Profondeur IA (joueur O)")
+            if self.ia2 == "3":
+                self.budget_ia2 = self.choisir_force_ia(self.ia2, "Budget MCTS (joueur O)")
+            else:
+                self.profondeur_ia2 = self.choisir_force_ia(self.ia2, "Profondeur IA (joueur O)")
 
         elif self.mode == 'IAvsIA':
             self.ia1 = self.choisir_ia("Choix IA 1 (joueur X)")
-            self.profondeur_ia1 = self.choisir_profondeur("Profondeur IA 1 (joueur X)")
+            if self.ia1 == "3":
+                self.budget_ia1 = self.choisir_force_ia(self.ia1, "Budget MCTS IA 1 (joueur X)")
+            else:
+                self.profondeur_ia1 = self.choisir_force_ia(self.ia1, "Profondeur IA 1 (joueur X)")
 
             self.ia2 = self.choisir_ia("Choix IA 2 (joueur O)")
-            self.profondeur_ia2 = self.choisir_profondeur("Profondeur IA 2 (joueur O)")
+            if self.ia2 == "3":
+                self.budget_ia2 = self.choisir_force_ia(self.ia2, "Budget MCTS IA 2 (joueur O)")
+            else:
+                self.profondeur_ia2 = self.choisir_force_ia(self.ia2, "Profondeur IA 2 (joueur O)")
 
         self.window = tk.Tk()
         self.window.title("Puissance 4")
