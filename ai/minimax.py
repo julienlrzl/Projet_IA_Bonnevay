@@ -1,12 +1,17 @@
+# minimax.py
+
 from copy import deepcopy
 from ai.evaluation import evaluation
 
+joueur_ref = None  # <-- ajouté
 
 def est_feuille(n):
-    return n.est_victoire() or n.est_pleine()
+    # L'adversaire vient de jouer avant ce nœud
+    j_adv = 'O' if n.joueur_actuel == 'X' else 'X'
+    return n.est_victoire(j_adv) or n.est_pleine()
+
 
 def generer_fils(n):
-    """Génère tous les coups possibles (copie de l'état + colonne jouée)."""
     fils = []
     for col in n.get_valid_moves():
         copie = deepcopy(n)
@@ -15,18 +20,18 @@ def generer_fils(n):
         fils.append((copie, col))
     return fils
 
-
 def minimax(racine, max_profondeur):
-    """Appelle JOUEURMAX comme point d’entrée de l’algo."""
+    global joueur_ref
+    joueur_ref = racine.joueur_actuel  # <-- ajouté
     eval_finale, action = joueur_max(racine, max_profondeur)
     return action
 
-
 def joueur_max(n, p):
     if est_feuille(n) or p == 0:
-        if n.est_victoire():
-            return -100000, get_default_action(n)  # car l'adversaire vient de jouer
-        return evaluation(n), get_default_action(n)
+        adversaire_ = 'O' if n.joueur_actuel == 'X' else 'X'
+        if n.est_victoire(adversaire_):
+            return -100000, get_default_action(n)
+        return evaluation(n, joueur_ref), get_default_action(n)  # <-- corrigé
 
     u = float('-inf')
     a = None
@@ -39,12 +44,12 @@ def joueur_max(n, p):
 
     return u, a
 
-
 def joueur_min(n, p):
     if est_feuille(n) or p == 0:
-        if n.est_victoire():
-            return 100000, get_default_action(n)  # car l'adversaire vient de jouer
-        return evaluation(n), get_default_action(n)
+        adversaire_ = 'O' if n.joueur_actuel == 'X' else 'X'
+        if n.est_victoire(adversaire_):
+            return 100000, get_default_action(n)
+        return evaluation(n, joueur_ref), get_default_action(n) 
 
     u = float('inf')
     a = None
@@ -58,6 +63,5 @@ def joueur_min(n, p):
     return u, a
 
 def get_default_action(n):
-    """Renvoie un coup valide arbitraire pour éviter de retourner None."""
     valid_moves = n.get_valid_moves()
     return valid_moves[0] if valid_moves else 0
