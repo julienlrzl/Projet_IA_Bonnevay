@@ -6,8 +6,10 @@ import sys
 
 def afficher_grille_et_resultat(jeu):
     jeu.afficher_grille()
-    if jeu.est_victoire():
-        print(f"Victoire du joueur {jeu.joueur_actuel} !")
+    vainqueur = jeu.joueur_actuel
+    if jeu.est_victoire(vainqueur):
+        print(f"Victoire du joueur {vainqueur} !")
+
         return True
     elif jeu.est_pleine():
         print("Match nul !")
@@ -68,9 +70,8 @@ def jouer_joueur_vs_ia(choix_ia):
 
         jeu.changer_joueur()
 
-def jouer_ia_vs_ia(choix_ia1, choix_ia2):
+def jouer_ia_vs_ia(choix_ia1, choix_ia2, profondeur1, profondeur2):
     jeu = Puissance4()
-    profondeur = 4 # profondeur pour les IA
 
     print(f"\n--- IA vs IA ---")
     print(f"IA 1 (X) = ", end="")
@@ -80,6 +81,8 @@ def jouer_ia_vs_ia(choix_ia1, choix_ia2):
         print("Alpha-Beta")
     elif choix_ia1 == "3":
         print("MCTS")
+    
+    print(f"Profondeur = {profondeur1}")
 
     print(f"IA 2 (O) = ", end="")
     if choix_ia2 == "1":
@@ -88,6 +91,8 @@ def jouer_ia_vs_ia(choix_ia1, choix_ia2):
         print("Alpha-Beta")
     elif choix_ia2 == "3":
         print("MCTS")
+
+    print(f"Profondeur = {profondeur2}")
 
     while True:
         jeu.afficher_grille()
@@ -100,9 +105,9 @@ def jouer_ia_vs_ia(choix_ia1, choix_ia2):
             choix = choix_ia2
 
         if choix == "1":
-            col = minimax(jeu, max_profondeur=profondeur)
+            col = minimax(jeu, max_profondeur=profondeur1 if jeu.joueur_actuel == 'X' else profondeur2)
         elif choix == "2":
-            col = alpha_beta(jeu, max_profondeur=profondeur)
+            col = alpha_beta(jeu, max_profondeur=profondeur1 if jeu.joueur_actuel == 'X' else profondeur2)
         elif choix == "3":
             print("MCTS n'est pas encore implémenté.")
             col = 0  # fallback pour tester
@@ -154,13 +159,32 @@ def jouer_partie_console():
             print("\nChoisir IA 1 :")
             afficher_choix_ia()
             choix_ia1 = input("Choisissez IA 1 : ")
+            if choix_ia1 not in ["1", "2", "3"]:
+                print("Option IA invalide.")
+                continue
+
+            prof_ia1= int(input("Profondeur pour IA 1 (1-10) : "))
+            if prof_ia1 < 1 or prof_ia1 > 10:
+                print("Profondeur invalide. Doit être entre 1 et 10.")
+                continue
 
             print("\nChoisir IA 2 :")
             afficher_choix_ia()
             choix_ia2 = input("Choisissez IA 2 : ")
+            if choix_ia2 not in ["1", "2", "3"]:
+                print("Option IA invalide.")
+                continue
+            prof_ia2 = int(input("Profondeur pour IA 2 (1-10) : "))
+            if prof_ia2 < 1 or prof_ia2 > 10:
+                print("Profondeur invalide. Doit être entre 1 et 10.")
+                continue
 
             if choix_ia1 in ["1", "2", "3"] and choix_ia2 in ["1", "2", "3"]:
-                jouer_ia_vs_ia(choix_ia1, choix_ia2)
+                if prof_ia1 and prof_ia2 > 0 and prof_ia1 and prof_ia2 <= 10:
+                    jouer_ia_vs_ia(choix_ia1, choix_ia2, prof_ia1, prof_ia2)
+            
+            
+                
             else:
                 print("Option IA invalide.")
 
