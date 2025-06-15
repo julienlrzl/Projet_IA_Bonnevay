@@ -1,7 +1,7 @@
 from game.puissance4 import Puissance4
 from ai.minimax import minimax
 from ai.alphabeta import alpha_beta
-# from ai.mcts import mcts
+from ai.mcts import mcts
 import sys
 
 def afficher_grille_et_resultat(jeu):
@@ -52,8 +52,7 @@ def jouer_joueur_vs_ia(choix_ia):
             elif choix_ia == "2":
                 col = alpha_beta(jeu, max_profondeur=4)
             elif choix_ia == "3":
-                print("MCTS n'est pas encore implémenté.")
-                col = 0 # mcts(jeu, simulations=1000)
+                col = mcts(jeu, budget=1000)
             else:
                 print("IA non reconnue.")
                 col = 0
@@ -104,8 +103,7 @@ def jouer_ia_vs_ia(choix_ia1, choix_ia2):
         elif choix == "2":
             col = alpha_beta(jeu, max_profondeur=profondeur)
         elif choix == "3":
-            print("MCTS n'est pas encore implémenté.")
-            col = 0  # fallback pour tester
+            col = mcts(jeu, budget=1000)
         else:
             print("IA non reconnue.")
             break
