@@ -27,7 +27,7 @@ def minimax(racine, max_profondeur):
 def joueur_max(n, p):
     if est_feuille(n) or p == 0:
         adversaire = 'O' if n.joueur_actuel == 'X' else 'X'
-        if n.estvictoire(adversaire):
+        if n.est_victoire(adversaire):
             return -100000, get_default_action(n)
         return evaluation(n, joueur_ref), get_default_action(n)  # <-- corrigé
 
@@ -45,7 +45,7 @@ def joueur_max(n, p):
 def joueur_min(n, p):
     if est_feuille(n) or p == 0:
         adversaire = 'O' if n.joueur_actuel == 'X' else 'X'
-        if n.estvictoire(adversaire):
+        if n.est_victoire(adversaire):
             return 100000, get_default_action(n)
         return evaluation(n, joueur_ref), get_default_action(n) 
 
